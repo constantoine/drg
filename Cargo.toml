@@ -1,0 +1,12 @@
+[package]
+name = "drg"
+version = "0.1.0"
+edition = "2021"
+authors = ["cleo.rebert@gmail.com"]
+repository = "https://github.com/constantoine/drg"
+description = "An unofficial, unlicensed port of DRG: The Board Game."
+categories = ["games"]
+keywords = ["game"]
+
+[dependencies]
+sdl2 = {version = "0.35.2", features = ["gfx", "bundled"]}

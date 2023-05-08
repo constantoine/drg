@@ -42,35 +42,35 @@ impl std::fmt::Display for Coordinates {
 }
 
 impl Coordinates {
-    pub fn from_offset(x: i32, y: i32) -> Coordinates {
+    pub fn from_offset(x: i32, y: i32) -> Self {
         let r = y;
         let q = x - (y - (y & 1)) / 2;
         Coordinates { q: q, r: r }
     }
 
-    pub fn add_direction(&self, direction: Direction) -> Coordinates {
+    pub fn add_direction(&self, direction: Direction) -> Self {
         match direction {
-            Direction::TopRight => Coordinates {
+            Direction::TopRight => Self {
                 q: self.q + 1,
                 r: self.r - 1,
             },
-            Direction::Right => Coordinates {
+            Direction::Right => Self {
                 q: self.q + 1,
                 r: self.r,
             },
-            Direction::BottomRight => Coordinates {
+            Direction::BottomRight => Self {
                 q: self.q,
                 r: self.r + 1,
             },
-            Direction::BottomLeft => Coordinates {
+            Direction::BottomLeft => Self {
                 q: self.q - 1,
                 r: self.r + 1,
             },
-            Direction::Left => Coordinates {
+            Direction::Left => Self {
                 q: self.q - 1,
                 r: self.r,
             },
-            Direction::TopLeft => Coordinates {
+            Direction::TopLeft => Self {
                 q: self.q,
                 r: self.r - 1,
             },
@@ -85,7 +85,7 @@ pub struct Tile {
 }
 
 impl Tile {
-    pub fn new(coordinates: Coordinates, free: bool) -> Tile {
+    pub fn new(coordinates: Coordinates, free: bool) -> Self {
         Tile {
             coordinates: coordinates,
             free: free,

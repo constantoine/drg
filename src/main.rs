@@ -1,6 +1,7 @@
 mod direction;
 mod hex;
 mod utils;
+mod dice;
 
 use direction::Direction;
 extern crate sdl2;

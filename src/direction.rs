@@ -11,7 +11,7 @@ pub enum Direction {
 }
 
 impl From<i32> for Direction {
-    fn from(value: i32) -> Direction {
+    fn from(value: i32) -> Self {
         let mut val = value;
         if val == -1 {
             val = 5;

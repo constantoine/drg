@@ -117,13 +117,10 @@ fn main() {
         }
 
         let arrow = direction.to_string();
-        utils::render_text(
-            &mut canvas,
-            &font,
-            &texture_creator,
-            location.into(),
-            &arrow,
-        );
+        let mut text_center: sdl2::rect::Point = location.into();
+        text_center.x -= 3;
+        text_center.y -= 10;
+        utils::render_text(&mut canvas, &font, &texture_creator, text_center, &arrow);
         /*
                 for x in -4..4 {
                     for y in -4..4 {

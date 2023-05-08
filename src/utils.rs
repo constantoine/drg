@@ -16,8 +16,8 @@ pub fn render_text<S, T>(
     let texture = texture_creator.create_texture_from_surface(text).unwrap();
     let texture_query = texture.query();
     let rect_target = sdl2::rect::Rect::new(
-        center.x - 3,
-        center.y - 5,
+        center.x,
+        center.y,
         texture_query.width,
         texture_query.height,
     );

@@ -1,5 +1,5 @@
-use std::fmt::Write;
 extern crate sdl2;
+use crate::direction::Direction;
 
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::pixels::Color;
@@ -11,33 +11,16 @@ const HEX_SIZE: f64 = 30.0;
 const WIDTH: u32 = 1920;
 const HEIGHT: u32 = 1080;
 
-#[derive(Debug)]
-pub enum Direction {
-    TopRight,
-    Right,
-    BottomRight,
-    BottomLeft,
-    Left,
-    TopLeft,
-}
-
-impl std::fmt::Display for Direction {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Direction::TopRight => f.write_char('↗'),
-            Direction::Right => f.write_char('→'),
-            Direction::BottomRight => f.write_char('↘'),
-            Direction::BottomLeft => f.write_char('↙'),
-            Direction::Left => f.write_char('←'),
-            Direction::TopLeft => f.write_char('↖'),
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq)]
 pub struct Coordinates {
     pub q: i32,
     pub r: i32,
+}
+
+impl PartialEq for Coordinates {
+    fn eq(&self, other: &Self) -> bool {
+        return self.q == other.q && self.r == other.r;
+    }
 }
 
 // Used to calculate the center point in pixel.
@@ -48,7 +31,7 @@ impl std::convert::Into<Point> for Coordinates {
         const Y_RATIO: i32 = (HEX_DIAMETER * 0.86602540378) as i32; // SIN(PI * (2/3))
         let y = Y_RATIO * self.r;
         let x = X_RATIO * self.r + (HEX_DIAMETER as i32) * self.q;
-        Point::new(x + ((WIDTH / 2) as i32), y + ((HEIGHT / 2) as i32))
+        Point::new(x + ((WIDTH / 4) as i32), y + ((HEIGHT / 5) as i32))
     }
 }
 
@@ -97,8 +80,8 @@ impl Coordinates {
 
 #[derive(Debug)]
 pub struct Tile {
-    coordinates: Coordinates,
-    free: bool,
+    pub coordinates: Coordinates,
+    pub free: bool,
 }
 
 impl Tile {
@@ -120,11 +103,16 @@ impl Tile {
         }
         canvas.set_draw_color(Color::RGB(0, 20, 0));
 
+        let mut color: Color = Color::RGB(170, 170, 170);
+        if self.free {
+            color = Color::RGB(200, 200, 200)
+        }
+
         canvas
             .filled_polygon(
                 &points.map(|p| p.x as i16),
                 &points.map(|p| p.y as i16),
-                Color::RGB(200, 200, 200),
+                color,
             )
             .unwrap();
         for i in 0..6 {
@@ -138,7 +126,7 @@ impl Tile {
                 )
                 .unwrap();
         }
-
+        /*
         canvas
             .string(
                 (orig.x - 16) as i16,
@@ -155,5 +143,6 @@ impl Tile {
                 Color::RGB(0, 20, 0),
             )
             .unwrap();
+        */
     }
 }

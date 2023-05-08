@@ -45,8 +45,11 @@ fn main() {
                 board[x as usize].push(None);
                 continue;
             }
-            let new_tile: hex::Tile =
-                hex::Tile::new(hex::Coordinates::from_offset(x, y), !rng.gen_bool(0.08));
+            let mut free = !rng.gen_bool(0.08);
+            if x == 0 && y == 0 {
+                free = false;
+            }
+            let new_tile: hex::Tile = hex::Tile::new(hex::Coordinates::from_offset(x, y), free);
             board[x as usize].push(Some(new_tile));
         }
     }

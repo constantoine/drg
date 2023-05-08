@@ -1,7 +1,6 @@
 mod direction;
 mod hex;
 mod utils;
-mod dice;
 
 use direction::Direction;
 extern crate sdl2;
@@ -14,6 +13,8 @@ use std::time::Duration;
 
 fn main() {
     let mut rng = rand::thread_rng();
+
+    // SDL init.
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let window = video_subsystem
@@ -31,6 +32,8 @@ fn main() {
     canvas.present();
     let texture_creator = canvas.texture_creator();
     let mut event_pump = sdl_context.event_pump().unwrap();
+
+    // Map generation.
     let mut direction: Direction = Direction::Right;
     let mut location: hex::Coordinates = hex::Coordinates { q: 0, r: 0 };
     let mut board: Vec<Vec<Option<hex::Tile>>> = vec![];
@@ -38,23 +41,29 @@ fn main() {
         let row: Vec<Option<hex::Tile>> = vec![];
         board.push(row);
         for y in 0..15 {
+            // remove last piece from every odd row to get nice square board.
             if x == 14 && y & 1 != 0 {
                 board[x as usize].push(None);
                 continue;
             }
+            // Remove pieces to be iso with the canonical board.
             if (x == 0 || x == 14) && (y == 4 || y == 10) {
                 board[x as usize].push(None);
                 continue;
             }
-            let mut free = !rng.gen_bool(0.08);
+
+            // Generated tiles have 8% chance of being obstacles.
+            let mut free = rng.gen_bool(0.92);
             if x == 0 && y == 0 {
                 free = false;
             }
+
             let new_tile: hex::Tile = hex::Tile::new(hex::Coordinates::from_offset(x, y), free);
             board[x as usize].push(Some(new_tile));
         }
     }
 
+    // Event loop.
     'running: loop {
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
@@ -109,6 +118,7 @@ fn main() {
             }
         }
 
+        // Draw all tiles.
         for row in &board {
             for piece in row {
                 if piece.is_some() {
@@ -117,22 +127,13 @@ fn main() {
             }
         }
 
+        // Draw current position and direction.
         let arrow = direction.to_string();
         let mut text_center: sdl2::rect::Point = location.into();
         text_center.x -= 3;
         text_center.y -= 10;
         utils::render_text(&mut canvas, &font, &texture_creator, text_center, &arrow);
-        /*
-                for x in -4..4 {
-                    for y in -4..4 {
-                        if x == 3 && y&1 == 1 {
-                            continue;
-                        }
-                        let tile = hex::Tile::new(hex::Coordinates::from_offset(x, y), true);
-                        tile.draw(&mut canvas);
-                    }
-                }
-        */
+
         canvas.present();
         std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }

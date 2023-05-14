@@ -1,5 +1,10 @@
+pub mod dices;
+
+use rand::rngs::SmallRng;
+use rand::Rng;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum DiceResult {
+pub enum DiceResult {
     Single,
     Double,
     Special,
@@ -8,56 +13,12 @@ enum DiceResult {
 
 // Dice implementation is faces-number agnostic.
 #[derive(Clone, Copy, Debug)]
-struct Dice {
+pub struct Dice {
     single: u8,
     double: u8,
     special: u8,
     noop: u8,
 }
-
-const FIRE_DICE: Dice = Dice {
-    single: 4,
-    double: 1,
-    special: 0,
-    noop: 1,
-};
-const EXPLOSICE_DICE: Dice = Dice {
-    single: 3,
-    double: 2,
-    special: 1,
-    noop: 0,
-};
-const ENNEMY_DICE: Dice = Dice {
-    single: 3,
-    double: 0,
-    special: 2,
-    noop: 1,
-};
-const PICKAXE_DICE: Dice = Dice {
-    single: 3,
-    double: 2,
-    special: 0,
-    noop: 1,
-};
-// Single is GOLD, special is NITRA;
-const MINERAL_DICE: Dice = Dice {
-    single: 2,
-    double: 0,
-    special: 2,
-    noop: 2,
-};
-const BULLET_DICE: Dice = Dice {
-    single: 4,
-    double: 0,
-    special: 0,
-    noop: 2,
-};
-const PIERCING_DICE: Dice = Dice {
-    single: 3,
-    double: 2,
-    special: 0,
-    noop: 1,
-};
 
 impl Dice {
     fn result(self, value: u8) -> DiceResult {
@@ -78,10 +39,15 @@ impl Dice {
             _ => unreachable!("Dice result not in range."),
         }
     }
+
+    pub fn throw(self, rng: &mut SmallRng) -> DiceResult {
+        self.result(rng.gen_range(1..=6))
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::dices::*;
     use super::*;
 
     #[test]

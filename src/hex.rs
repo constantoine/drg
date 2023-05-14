@@ -23,7 +23,7 @@ impl PartialEq for Coordinates {
     }
 }
 
-// Used to calculate the center point in pixel.
+// Calculate the center point in pixel.
 impl std::convert::Into<Point> for Coordinates {
     fn into(self) -> Point {
         const HEX_DIAMETER: f64 = HEX_SIZE * 1.9; // > 1.732 < 2

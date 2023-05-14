@@ -9,5 +9,5 @@ categories = ["games"]
 keywords = ["game"]
 
 [dependencies]
-rand = "0.8.5"
+rand = {version = "0.8.5", features = ["small_rng", "getrandom"], default-features = false }
 sdl2 = {version = "0.35.2", features = ["gfx", "bundled", "ttf"]}

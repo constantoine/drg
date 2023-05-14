@@ -1,3 +1,4 @@
+mod dice;
 mod direction;
 mod hex;
 mod utils;
@@ -5,14 +6,15 @@ mod utils;
 use direction::Direction;
 extern crate sdl2;
 
-use rand::Rng;
+use rand::rngs::SmallRng;
+use rand::{Rng, SeedableRng};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use std::time::Duration;
 
 fn main() {
-    let mut rng = rand::thread_rng();
+    let mut rng = SmallRng::from_entropy();
 
     // SDL init.
     let sdl_context = sdl2::init().unwrap();

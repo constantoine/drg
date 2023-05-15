@@ -1,9 +1,12 @@
 mod dice;
-mod direction;
-mod hex;
+mod board;
 mod utils;
+mod creature;
 
-use direction::Direction;
+use board::direction::Direction;
+use board::coordinates::Coordinates;
+use board::tile::Tile;
+
 extern crate sdl2;
 
 use rand::rngs::SmallRng;
@@ -37,10 +40,10 @@ fn main() {
 
     // Map generation.
     let mut direction: Direction = Direction::Right;
-    let mut location: hex::Coordinates = hex::Coordinates { q: 0, r: 0 };
-    let mut board: Vec<Vec<Option<hex::Tile>>> = vec![];
+    let mut location: Coordinates = Coordinates { q: 0, r: 0 };
+    let mut board: Vec<Vec<Option<Tile>>> = vec![];
     for x in 0..15 {
-        let row: Vec<Option<hex::Tile>> = vec![];
+        let row: Vec<Option<Tile>> = vec![];
         board.push(row);
         for y in 0..15 {
             // remove last piece from every odd row to get nice square board.
@@ -60,7 +63,7 @@ fn main() {
                 free = false;
             }
 
-            let new_tile: hex::Tile = hex::Tile::new(hex::Coordinates::from_offset(x, y), free);
+            let new_tile: Tile = Tile::new(Coordinates::from_offset(x, y), free);
             board[x as usize].push(Some(new_tile));
         }
     }
@@ -124,7 +127,7 @@ fn main() {
         for row in &board {
             for piece in row {
                 if piece.is_some() {
-                    piece.as_ref().unwrap().draw(&mut canvas);
+                    piece.as_ref().unwrap().draw(&mut canvas, false);
                 }
             }
         }

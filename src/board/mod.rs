@@ -1,3 +1,4 @@
+pub mod board;
 pub mod coordinates;
 pub mod direction;
 pub mod tile;

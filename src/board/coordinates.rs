@@ -1,8 +1,8 @@
-use sdl2::rect::Point;
-use super::{HEIGHT, WIDTH, HEX_SIZE};
+use super::{HEIGHT, HEX_SIZE, WIDTH};
 use crate::Direction;
+use sdl2::rect::Point;
 
-#[derive(Clone, Copy, Debug, Eq)]
+#[derive(Clone, Copy, Debug, Eq, Hash)]
 pub struct Coordinates {
     pub q: i32,
     pub r: i32,

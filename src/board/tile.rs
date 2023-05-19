@@ -16,6 +16,40 @@ impl Tile {
         Tile { free: free }
     }
 
+    pub fn add_color<T>(&self, canvas: &mut Canvas<T>, coordinates: Coordinates, color: Color)
+    where
+        T: RenderTarget,
+    {
+        let orig: Point = coordinates.into();
+        let mut points: [Point; 6] = [Point::new(0, 0); 6];
+        for i in 0..6 {
+            let angle_deg: f64 = (60 * (i as i32) - 30) as f64;
+            let angle_rad: f64 = f64::to_radians(angle_deg);
+            points[i].x = orig.x + (f64::round(HEX_SIZE * f64::cos(angle_rad)) as i32);
+            points[i].y = orig.y + (f64::round(HEX_SIZE * f64::sin(angle_rad)) as i32);
+        }
+        canvas.set_draw_color(Color::RGB(0, 20, 0));
+
+        canvas
+            .filled_polygon(
+                &points.map(|p| p.x as i16),
+                &points.map(|p| p.y as i16),
+                color,
+            )
+            .unwrap();
+        for i in 0..6 {
+            canvas
+                .aa_line(
+                    points[i].x as i16,
+                    points[i].y as i16,
+                    points[(i + 1) % 6].x as i16,
+                    points[(i + 1) % 6].y as i16,
+                    Color::RGB(0, 20, 0),
+                )
+                .unwrap();
+        }
+    }
+
     pub fn draw<T>(&self, canvas: &mut Canvas<T>, coordinates: Coordinates, debug: bool)
     where
         T: RenderTarget,

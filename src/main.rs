@@ -41,6 +41,8 @@ fn main() {
 
     // Event loop.
     'running: loop {
+        let mouse_state = sdl2::mouse::MouseState::new(&event_pump);
+        let mouse_pos = sdl2::rect::Point::new(mouse_state.x(), mouse_state.y());
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
         for event in event_pump.poll_iter() {
@@ -82,6 +84,21 @@ fn main() {
 
         // Draw all tiles.
         board.draw(&mut canvas);
+        match board.get(mouse_pos.into()) {
+            Some(x) => {
+                x.add_color(
+                    &mut canvas,
+                    mouse_pos.into(),
+                    Color {
+                        r: 255,
+                        g: 0,
+                        b: 0,
+                        a: 70,
+                    },
+                );
+            }
+            None => (),
+        }
 
         // Draw current position and direction.
         let arrow = direction.to_string();

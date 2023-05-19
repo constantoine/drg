@@ -65,7 +65,7 @@ fn main() {
                     ..
                 } => {
                     let previous_loc = location;
-                    let try_loc = location.add_direction(direction);
+                    let try_loc = location + direction;
                     match board.get(try_loc) {
                         Some(x) => {
                             if !x.free {

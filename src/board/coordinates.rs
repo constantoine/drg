@@ -56,15 +56,11 @@ impl std::fmt::Display for Coordinates {
     }
 }
 
-impl Coordinates {
-    pub fn from_offset(x: i32, y: i32) -> Self {
-        let r = y;
-        let q = x - (y - (y & 1)) / 2;
-        Coordinates { q: q, r: r }
-    }
+impl std::ops::Add<Direction> for Coordinates {
+    type Output = Coordinates;
 
-    pub fn add_direction(&self, direction: Direction) -> Self {
-        match direction {
+    fn add(self, rhs: Direction) -> Self::Output {
+        match rhs {
             Direction::TopRight => Self {
                 q: self.q + 1,
                 r: self.r - 1,
@@ -90,5 +86,13 @@ impl Coordinates {
                 r: self.r - 1,
             },
         }
+    }
+}
+
+impl Coordinates {
+    pub fn from_offset(x: i32, y: i32) -> Self {
+        let r = y;
+        let q = x - (y - (y & 1)) / 2;
+        Coordinates { q: q, r: r }
     }
 }

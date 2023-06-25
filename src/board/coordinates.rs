@@ -44,9 +44,9 @@ impl std::convert::From<Point> for Coordinates {
     fn from(point: Point) -> Self {
         let x = f64::from(point.x) - f64::from(WIDTH) / 4.0;
         let y = f64::from(point.y) - f64::from(HEIGHT) / 5.0;
-        let r = ((1.0 / HEX_DIAMETER) * (N11 * x + N12 * y)).round() as i32;
-        let q = ((1.0 / HEX_DIAMETER) * (N21 * x + N22 * y)).round() as i32;
-        Self { q: q, r: r }
+        let r = ((1.0 / HEX_DIAMETER) * (N11 * x + N12 * y));
+        let q = ((1.0 / HEX_DIAMETER) * (N21 * x + N22 * y));
+        Coordinates::round(q, r)
     }
 }
 
@@ -199,8 +199,8 @@ impl Coordinates {
             r: target.r as f64,
         };
 
-        let mut first: Vec<Coordinates> = Vec::with_capacity((distance) as usize);
-        let mut second: Vec<Coordinates> = Vec::with_capacity((distance) as usize);
+        let mut first: Vec<Coordinates> = Vec::with_capacity(distance as usize);
+        let mut second: Vec<Coordinates> = Vec::with_capacity(distance as usize);
 
         for i in 1..(distance) {
             let plus = axial_lerp(

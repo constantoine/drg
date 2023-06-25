@@ -38,6 +38,7 @@ fn main() {
     let mut direction: Direction = Direction::Right;
     let mut location: Coordinates = Coordinates { q: 0, r: 0 };
     let mut board: Board = Board::new();
+    let mut display_pos: bool = false;
 
     // Event loop.
     'running: loop {
@@ -45,6 +46,7 @@ fn main() {
         let mouse_pos = sdl2::rect::Point::new(mouse_state.x(), mouse_state.y());
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
+
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. }
@@ -60,6 +62,14 @@ fn main() {
                     keycode: Some(Keycode::Right),
                     ..
                 } => direction = Direction::from((direction as i32) + 1),
+                Event::KeyDown {
+                    keycode: Some(Keycode::D),
+                    ..
+                } => display_pos = true,
+                Event::KeyUp {
+                    keycode: Some(Keycode::D),
+                    ..
+                } => display_pos = false,
                 Event::KeyDown {
                     keycode: Some(Keycode::Space),
                     ..
@@ -84,6 +94,8 @@ fn main() {
 
         // Draw all tiles.
         board.draw(&mut canvas);
+
+        // Draw tile on mouse;
         match board.get(mouse_pos.into()) {
             Some(x) => {
                 x.add_color(
@@ -96,6 +108,15 @@ fn main() {
                         a: 70,
                     },
                 );
+                if display_pos {
+                    utils::render_text(
+                        &mut canvas,
+                        &font,
+                        &texture_creator,
+                        sdl2::rect::Point::new(900, 1000),
+                        location.distance(mouse_pos.into()).to_string().as_str(),
+                    );
+                }
             }
             None => (),
         }

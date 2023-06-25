@@ -89,10 +89,38 @@ impl std::ops::Add<Direction> for Coordinates {
     }
 }
 
+impl std::ops::Add<Coordinates> for Coordinates {
+    type Output = Coordinates;
+
+    fn add(self, rhs: Coordinates) -> Self::Output {
+        Coordinates {
+            q: self.q + rhs.q,
+            r: self.r + rhs.r,
+        }
+    }
+}
+
+impl std::ops::Sub<Coordinates> for Coordinates {
+    type Output = Coordinates;
+
+    fn sub(self, rhs: Coordinates) -> Self::Output {
+        Coordinates {
+            q: self.q - rhs.q,
+            r: self.r - rhs.r,
+        }
+    }
+}
+
 impl Coordinates {
     pub fn from_offset(x: i32, y: i32) -> Self {
         let r = y;
         let q = x - (y - (y & 1)) / 2;
         Coordinates { q: q, r: r }
+    }
+
+    pub fn distance(self, target: Coordinates) -> u32 {
+        let vec: Coordinates = self - target;
+        let manhattan = vec.q.abs() + (vec.q.abs() + vec.r.abs()) + vec.r.abs();
+        (manhattan / 2) as u32
     }
 }

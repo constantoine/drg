@@ -38,7 +38,10 @@ fn main() {
     let mut direction: Direction = Direction::Right;
     let mut location: Coordinates = Coordinates { q: 0, r: 0 };
     let mut board: Board = Board::new();
+
+    // Debug options.
     let mut display_pos: bool = false;
+    let mut line_up: bool = false;
 
     // Event loop.
     'running: loop {
@@ -66,6 +69,14 @@ fn main() {
                     keycode: Some(Keycode::D),
                     ..
                 } => display_pos = true,
+                Event::KeyDown {
+                    keycode: Some(Keycode::Up),
+                    ..
+                } => line_up = true,
+                Event::KeyUp {
+                    keycode: Some(Keycode::Up),
+                    ..
+                } => line_up = false,
                 Event::KeyUp {
                     keycode: Some(Keycode::D),
                     ..
@@ -98,6 +109,13 @@ fn main() {
         // Draw tile on mouse;
         match board.get(mouse_pos.into()) {
             Some(x) => {
+                let line = location.line(mouse_pos.into());
+                let chosen_line: Vec<Coordinates>;
+                if line_up {
+                    chosen_line = line.0;
+                } else {
+                    chosen_line = line.1;
+                }
                 x.add_color(
                     &mut canvas,
                     mouse_pos.into(),
@@ -116,6 +134,18 @@ fn main() {
                         sdl2::rect::Point::new(900, 1000),
                         location.distance(mouse_pos.into()).to_string().as_str(),
                     );
+                    chosen_line.iter().for_each(|coord| {
+                        board.get(*coord).unwrap().add_color(
+                            &mut canvas,
+                            *coord,
+                            Color {
+                                r: 0,
+                                g: 150,
+                                b: 0,
+                                a: 70,
+                            },
+                        )
+                    });
                 }
             }
             None => (),

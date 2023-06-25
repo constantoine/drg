@@ -111,6 +111,47 @@ impl std::ops::Sub<Coordinates> for Coordinates {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
+struct FloatCoordinates {
+    pub q: f64,
+    pub r: f64,
+}
+
+const COORDINATES_EPSILON: FloatCoordinates = FloatCoordinates { q: 1e-6, r: 2e-6 };
+
+impl std::ops::Add<FloatCoordinates> for FloatCoordinates {
+    type Output = FloatCoordinates;
+
+    fn add(self, rhs: FloatCoordinates) -> Self::Output {
+        FloatCoordinates {
+            q: self.q + rhs.q,
+            r: self.r + rhs.r,
+        }
+    }
+}
+
+impl std::ops::Sub<FloatCoordinates> for FloatCoordinates {
+    type Output = FloatCoordinates;
+
+    fn sub(self, rhs: FloatCoordinates) -> Self::Output {
+        FloatCoordinates {
+            q: self.q - rhs.q,
+            r: self.r - rhs.r,
+        }
+    }
+}
+
+fn lerp(a: f64, b: f64, t: f64) -> f64 {
+    a + (b - a) * t
+}
+
+fn axial_lerp(a: FloatCoordinates, b: FloatCoordinates, t: f64) -> FloatCoordinates {
+    FloatCoordinates {
+        q: lerp(a.q, b.q, t),
+        r: lerp(a.r, b.r, t),
+    }
+}
+
 impl Coordinates {
     pub fn from_offset(x: i32, y: i32) -> Self {
         let r = y;
@@ -118,9 +159,64 @@ impl Coordinates {
         Coordinates { q: q, r: r }
     }
 
+    pub fn round(q: f64, r: f64) -> Self {
+        let qgrid = q.round();
+        let rgrid = r.round();
+
+        let qremainder = q - qgrid;
+        let rremainder = r - rgrid;
+
+        if qremainder.abs() >= rremainder.abs() {
+            return Coordinates {
+                q: (qgrid + (qremainder + 0.5 * rremainder).round()) as i32,
+                r: rgrid as i32,
+            };
+        }
+        return Coordinates {
+            q: qgrid as i32,
+            r: (rgrid + (rremainder + 0.5 * qremainder).round()) as i32,
+        };
+    }
+
     pub fn distance(self, target: Coordinates) -> u32 {
         let vec: Coordinates = self - target;
         let manhattan = vec.q.abs() + (vec.q.abs() + vec.r.abs()) + vec.r.abs();
         (manhattan / 2) as u32
+    }
+
+    pub fn line(self, target: Coordinates) -> (Vec<Coordinates>, Vec<Coordinates>) {
+        let mut distance = self.distance(target);
+        if distance == 0 {
+            distance = 1;
+        }
+
+        let start_float = FloatCoordinates {
+            q: self.q as f64,
+            r: self.r as f64,
+        };
+        let end_float = FloatCoordinates {
+            q: target.q as f64,
+            r: target.r as f64,
+        };
+
+        let mut first: Vec<Coordinates> = Vec::with_capacity((distance) as usize);
+        let mut second: Vec<Coordinates> = Vec::with_capacity((distance) as usize);
+
+        for i in 1..(distance) {
+            let plus = axial_lerp(
+                start_float + COORDINATES_EPSILON,
+                end_float,
+                1.0 / distance as f64 * i as f64,
+            );
+            let minus = axial_lerp(
+                start_float - COORDINATES_EPSILON,
+                end_float,
+                1.0 / distance as f64 * i as f64,
+            );
+            first.push(Coordinates::round(plus.q, plus.r));
+            second.push(Coordinates::round(minus.q, minus.r))
+        }
+
+        (first, second)
     }
 }

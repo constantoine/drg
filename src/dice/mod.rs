@@ -1,5 +1,6 @@
 pub mod dices;
 
+use crate::damage::kind::Kind;
 use rand::rngs::SmallRng;
 use rand::Rng;
 
@@ -12,12 +13,16 @@ pub enum DiceResult {
 }
 
 // Dice implementation is faces-number agnostic.
+// distribuable property denotes if one dice's result can be split.
+// eg, Melee dice
 #[derive(Clone, Copy, Debug)]
 pub struct Dice {
     single: u8,
     double: u8,
     special: u8,
     noop: u8,
+    distribuable: bool,
+    damage: Option<Kind>,
 }
 
 impl Dice {
@@ -124,7 +129,7 @@ mod tests {
 
     #[test]
     fn explosive_dice() {
-        let dice: Dice = EXPLOSICE_DICE;
+        let dice: Dice = EXPLOSIVE_DICE;
 
         let results: Vec<DiceResult> = (1..=6).map(|i| dice.result(i)).collect();
 

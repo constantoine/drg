@@ -1,5 +1,6 @@
 mod board;
 mod creature;
+mod damage;
 mod dice;
 mod utils;
 

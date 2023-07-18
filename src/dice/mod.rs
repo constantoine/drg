@@ -7,9 +7,13 @@ use rand::Rng;
 /// Throw result containing which dice face was up. 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DiceResult {
+    /// One hit.
     Single,
+    /// Two hits.
     Double,
+    /// Special hit.
     Special,
+    /// Missed.
     Noop,
 }
 

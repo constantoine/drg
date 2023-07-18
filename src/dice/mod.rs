@@ -45,6 +45,7 @@ impl Dice {
         }
     }
 
+    /// Throw a dice.
     pub fn throw(self, rng: &mut SmallRng) -> DiceResult {
         self.result(rng.gen_range(1..=6))
     }

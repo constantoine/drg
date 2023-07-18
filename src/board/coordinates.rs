@@ -1,9 +1,12 @@
+
 use super::{HEIGHT, HEX_SIZE, WIDTH};
 use crate::Direction;
 use sdl2::rect::Point;
 
-const HEX_DIAMETER: f64 = HEX_SIZE * 1.9; // > 1.732 < 2
+/// Tweak value between 1.732 and 2 to add or remove gap.
+const HEX_DIAMETER: f64 = HEX_SIZE * 1.9;
 
+/// Contains axial coordinates in a q/r form.
 #[derive(Clone, Copy, Debug, Eq, Hash)]
 pub struct Coordinates {
     pub q: i32,
@@ -16,10 +19,14 @@ impl PartialEq for Coordinates {
     }
 }
 
-const M11: f64 = 0.5; //COS(PI / 3)
-const M12: f64 = 1.0; //COS(0)
-const M21: f64 = 0.86602540378; //SIN(PI / 3)
-const M22: f64 = 0.0; //SIN(0)
+/// COS(PI / 3)
+const M11: f64 = 0.5;
+/// COS(0)
+const M12: f64 = 1.0;
+/// SIN(PI / 3)
+const M21: f64 = 0.86602540378;
+/// SIN(0)
+const M22: f64 = 0.0;
 
 // Calculate the center point in pixel.
 impl std::convert::Into<Point> for Coordinates {
@@ -32,7 +39,8 @@ impl std::convert::Into<Point> for Coordinates {
     }
 }
 
-const DET_M: f64 = M11 * M22 - M12 * M21; //constant so we know it's non null;
+const DET_M: f64 = M11 * M22 - M12 * M21;
+/// constant so we know it's non null.
 
 const N11: f64 = (1.0 / DET_M) * M22;
 const N12: f64 = (1.0 / DET_M) * -M12;
@@ -44,9 +52,11 @@ impl std::convert::From<Point> for Coordinates {
     fn from(point: Point) -> Self {
         let x = f64::from(point.x) - f64::from(WIDTH) / 4.0;
         let y = f64::from(point.y) - f64::from(HEIGHT) / 5.0;
-        let r = ((1.0 / HEX_DIAMETER) * (N11 * x + N12 * y));
-        let q = ((1.0 / HEX_DIAMETER) * (N21 * x + N22 * y));
-        Coordinates::round(q, r)
+        let coords: FloatCoordinates = FloatCoordinates {
+            q: (1.0 / HEX_DIAMETER) * (N21 * x + N22 * y),
+            r: (1.0 / HEX_DIAMETER) * (N11 * x + N12 * y),
+        };
+        Coordinates::round(coords)
     }
 }
 
@@ -111,8 +121,11 @@ impl std::ops::Sub<Coordinates> for Coordinates {
     }
 }
 
+/// Like Coordinates but used for trajectory computations.
+/// You might *think* you may need it, but you don't.
+/// Do not use.
 #[derive(Clone, Copy, Debug)]
-struct FloatCoordinates {
+pub struct FloatCoordinates {
     pub q: f64,
     pub r: f64,
 }
@@ -141,10 +154,12 @@ impl std::ops::Sub<FloatCoordinates> for FloatCoordinates {
     }
 }
 
+/// Weird maths for line drawing between two points.
 fn lerp(a: f64, b: f64, t: f64) -> f64 {
     a + (b - a) * t
 }
 
+/// Weird maths for line drawing between two axial coordinates.
 fn axial_lerp(a: FloatCoordinates, b: FloatCoordinates, t: f64) -> FloatCoordinates {
     FloatCoordinates {
         q: lerp(a.q, b.q, t),
@@ -153,18 +168,20 @@ fn axial_lerp(a: FloatCoordinates, b: FloatCoordinates, t: f64) -> FloatCoordina
 }
 
 impl Coordinates {
+    /// Transforms x/y coordinates into cube coordinates.
     pub fn from_offset(x: i32, y: i32) -> Self {
         let r = y;
         let q = x - (y - (y & 1)) / 2;
         Coordinates { q: q, r: r }
     }
 
-    pub fn round(q: f64, r: f64) -> Self {
-        let qgrid = q.round();
-        let rgrid = r.round();
+    /// More precise coordinate round.
+    pub fn round(coords: FloatCoordinates) -> Self {
+        let qgrid = coords.q.round();
+        let rgrid = coords.r.round();
 
-        let qremainder = q - qgrid;
-        let rremainder = r - rgrid;
+        let qremainder = coords.q - qgrid;
+        let rremainder = coords.r - rgrid;
 
         if qremainder.abs() >= rremainder.abs() {
             return Coordinates {
@@ -178,12 +195,16 @@ impl Coordinates {
         };
     }
 
+    /// Manhattan distance between two hexes.
+    /// Coordinates don't have to exist on the board.
     pub fn distance(self, target: Coordinates) -> u32 {
         let vec: Coordinates = self - target;
         let manhattan = vec.q.abs() + (vec.q.abs() + vec.r.abs()) + vec.r.abs();
         (manhattan / 2) as u32
     }
 
+    /// Returns one or two lines (one with +epsilon, one with -epsilon) between two hexes.
+    /// Coordinates don't have to exist on the board.
     pub fn line(self, target: Coordinates) -> (Vec<Coordinates>, Vec<Coordinates>) {
         let mut distance = self.distance(target);
         if distance == 0 {
@@ -213,8 +234,8 @@ impl Coordinates {
                 end_float,
                 1.0 / distance as f64 * i as f64,
             );
-            first.push(Coordinates::round(plus.q, plus.r));
-            second.push(Coordinates::round(minus.q, minus.r))
+            first.push(Coordinates::round(plus));
+            second.push(Coordinates::round(minus))
         }
 
         (first, second)

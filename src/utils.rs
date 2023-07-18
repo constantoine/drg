@@ -1,5 +1,6 @@
 use sdl2::pixels::Color;
 
+/// Helper function to render using ttf font.
 pub fn render_text<S, T>(
     canvas: &mut sdl2::render::Canvas<T>,
     font: &sdl2::ttf::Font,

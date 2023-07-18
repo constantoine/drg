@@ -22,18 +22,21 @@ fn main() {
     let window = video_subsystem
         .window("DRG: The Boardgame", 1920, 1080)
         .position_centered()
+        .opengl()
         .build()
-        .unwrap();
+        .expect("Could not build window");
 
     let mut canvas: sdl2::render::Canvas<sdl2::video::Window> =
         window.into_canvas().build().unwrap();
     let manager = sdl2::ttf::init().unwrap();
     let font = manager
         .load_font("/usr/share/fonts/truetype/unifont/unifont.ttf", 22)
-        .unwrap();
+        .expect("Could not load unifont at /usr/share/fonts/truetype/unifont/unifont.ttf");
     canvas.present();
     let texture_creator = canvas.texture_creator();
-    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut event_pump = sdl_context
+        .event_pump()
+        .expect("Could not start event pump");
 
     // Map generation.
     let mut direction: Direction = Direction::Right;

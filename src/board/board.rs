@@ -7,12 +7,14 @@ use sdl2::render::RenderTarget;
 
 use super::{coordinates::Coordinates, tile::Tile};
 
+/// A game board containing a reference to each of its tiles.
 #[derive(Debug)]
 pub struct Board {
     tiles: HashMap<Coordinates, Tile>,
 }
 
 impl Board {
+    /// Initialize a new board with
     pub fn new() -> Self {
         let mut rng = SmallRng::from_entropy();
         let mut tiles: HashMap<Coordinates, Tile> = HashMap::new();
@@ -39,6 +41,7 @@ impl Board {
         Board { tiles: tiles }
     }
 
+    /// Iterate over every tile and draw its base.
     pub fn draw<T>(&self, canvas: &mut Canvas<T>)
     where
         T: RenderTarget,
@@ -48,13 +51,15 @@ impl Board {
         }
     }
 
-    pub fn get(&self, coords: Coordinates) -> Option<Tile> {
+    /// Get a reference to a tile on the board.
+    pub fn get(&self, coords: Coordinates) -> Option<&Tile> {
         match self.tiles.get(&coords.clone()) {
-            Some(tile) => Some(*tile),
+            Some(tile) => Some(tile),
             None => None,
         }
     }
 
+    /// Set tile as free on the gameboard.
     pub fn free(&mut self, coords: Coordinates) {
         match self.tiles.get_mut(&coords.clone()) {
             Some(tile) => tile.free = true,
@@ -62,6 +67,7 @@ impl Board {
         }
     }
 
+    /// Set a tile as filled on the gameboard.
     pub fn fill(&mut self, coords: Coordinates) {
         match self.tiles.get_mut(&coords.clone()) {
             Some(tile) => tile.free = false,

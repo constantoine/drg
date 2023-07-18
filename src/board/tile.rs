@@ -16,6 +16,7 @@ impl Tile {
         Tile { free: free }
     }
 
+    /// Apply color mask on a tile.
     pub fn add_color<T>(&self, canvas: &mut Canvas<T>, coordinates: Coordinates, color: Color)
     where
         T: RenderTarget,

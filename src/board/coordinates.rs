@@ -130,6 +130,7 @@ pub struct FloatCoordinates {
     pub r: f64,
 }
 
+/// Very small coordinate used to nudge a line in a direction or another.
 const COORDINATES_EPSILON: FloatCoordinates = FloatCoordinates { q: 1e-6, r: 2e-6 };
 
 impl std::ops::Add<FloatCoordinates> for FloatCoordinates {

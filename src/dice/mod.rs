@@ -4,6 +4,7 @@ use crate::damage::kind::Kind;
 use rand::rngs::SmallRng;
 use rand::Rng;
 
+/// Throw result containing which dice face was up. 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DiceResult {
     Single,
@@ -12,20 +13,28 @@ pub enum DiceResult {
     Noop,
 }
 
-// Dice implementation is faces-number agnostic.
-// distribuable property denotes if one dice's result can be split.
-// eg, Melee dice
+/// Dice implementation is faces-number agnostic.
+/// distribuable property denotes if one dice's result can be split.
+/// eg, Melee dice
 #[derive(Clone, Copy, Debug)]
 pub struct Dice {
+    /// Number of faces whose result is 1 hit.
     single: u8,
+    /// Number of faces whose result is 2 hits.
     double: u8,
+    /// Number of faces whose result is special damage.
     special: u8,
+    /// Number of faces whose result is 0 hits (missed).
     noop: u8,
+    /// If damaged can be split between ennemies.
     distribuable: bool,
+    /// The kind of damage dealt, if relevant.
     damage: Option<Kind>,
 }
 
 impl Dice {
+    /// Super complex and expensive calculation to map a number to a face.
+    /// On a given dice, the same input produces the same output.
     fn result(self, value: u8) -> DiceResult {
         match value {
             i if (1..=self.single).contains(&i) => DiceResult::Single,
@@ -45,9 +54,9 @@ impl Dice {
         }
     }
 
-    /// Throw a dice.
+    /// Throw a dice using rng as a source of randommness.
     pub fn throw(self, rng: &mut SmallRng) -> DiceResult {
-        self.result(rng.gen_range(1..=6))
+        self.result(rng.gen_range(1..=(self.single + self.double + self.noop + self.special)))
     }
 }
 

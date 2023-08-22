@@ -7,7 +7,7 @@ use sdl2::render::RenderTarget;
 
 use super::{coordinates::Coordinates, tile::Tile};
 
-/// A game board containing a reference to each of its tiles.
+/// A game board containing a reference to each of its [Tiles][Tile].
 #[derive(Debug)]
 pub struct Board {
     tiles: HashMap<Coordinates, Tile>,

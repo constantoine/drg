@@ -51,6 +51,7 @@ impl Tile {
         }
     }
 
+    /// Draw a tile with given color and add anti-aliased borders.
     pub fn draw<T>(&self, canvas: &mut Canvas<T>, coordinates: Coordinates, debug: bool)
     where
         T: RenderTarget,

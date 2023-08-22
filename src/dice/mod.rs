@@ -1,10 +1,11 @@
+/// [Dice] constants.
 pub mod dices;
 
 use crate::damage::kind::Kind;
 use rand::rngs::SmallRng;
 use rand::Rng;
 
-/// Throw result containing which dice face was up. 
+/// Throw result containing which dice face was up.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DiceResult {
     /// One hit.
@@ -19,7 +20,7 @@ pub enum DiceResult {
 
 /// Dice implementation is faces-number agnostic.
 /// distribuable property denotes if one dice's result can be split.
-/// eg, Melee dice
+/// eg, Melee dice.
 #[derive(Clone, Copy, Debug)]
 pub struct Dice {
     /// Number of faces whose result is 1 hit.

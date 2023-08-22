@@ -1,4 +1,3 @@
-
 use super::{HEIGHT, HEX_SIZE, WIDTH};
 use crate::Direction;
 use sdl2::rect::Point;
@@ -28,8 +27,8 @@ const M21: f64 = 0.86602540378;
 /// SIN(0)
 const M22: f64 = 0.0;
 
-// Calculate the center point in pixel.
 impl std::convert::Into<Point> for Coordinates {
+    /// Calculate the center point in pixel.
     fn into(self) -> Point {
         let r = self.r as f64;
         let q = self.q as f64;
@@ -47,8 +46,8 @@ const N12: f64 = (1.0 / DET_M) * -M12;
 const N21: f64 = (1.0 / DET_M) * -M21;
 const N22: f64 = (1.0 / DET_M) * M11;
 
-// Calculate the center point in pixel.
 impl std::convert::From<Point> for Coordinates {
+    /// Compute [Coordinates] from pixel position.
     fn from(point: Point) -> Self {
         let x = f64::from(point.x) - f64::from(WIDTH) / 4.0;
         let y = f64::from(point.y) - f64::from(HEIGHT) / 5.0;
@@ -68,7 +67,7 @@ impl std::fmt::Display for Coordinates {
 
 impl std::ops::Add<Direction> for Coordinates {
     type Output = Coordinates;
-
+    /// Compute coordinate if the next step is in given direction.
     fn add(self, rhs: Direction) -> Self::Output {
         match rhs {
             Direction::TopRight => Self {

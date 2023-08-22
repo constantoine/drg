@@ -1,5 +1,6 @@
 use std::convert::{From, Into};
 
+/// Direction from one [Tile][super::tile::Tile] to the next.
 #[derive(Debug, Clone, Copy)]
 pub enum Direction {
     TopRight,
@@ -11,6 +12,7 @@ pub enum Direction {
 }
 
 impl From<i32> for Direction {
+    /// Convert value%6 from [TopRight][Direction::TopRight] to [TopLeft][Direction::TopLeft] clockwise.
     fn from(value: i32) -> Self {
         let mut val = value;
         if val == -1 {
@@ -42,6 +44,7 @@ impl Into<i32> for Direction {
 }
 
 impl std::fmt::Display for Direction {
+    /// Convert direction to unicode arrow.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::TopRight => f.write_str("↗"),

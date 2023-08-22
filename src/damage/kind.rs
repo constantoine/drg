@@ -1,3 +1,4 @@
+/// Different kinds of damage.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Kind {
     Fire,

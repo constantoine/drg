@@ -1,7 +1,11 @@
+/// Utility functions to play on a gameboard comprised of hexagonal tiles, or "hexes".
 mod board;
 mod creature;
+/// Damage computing logic.
 mod damage;
+/// All the [Dice][crate::dice::Dice] throwing logic.
 mod dice;
+/// UTF-8 + SDL2 shenanigans.
 mod utils;
 
 use board::board::Board;

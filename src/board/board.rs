@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::board::direction::Direction;
+use priority_queue::PriorityQueue;
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
 use sdl2::render::Canvas;
@@ -73,5 +75,92 @@ impl Board {
             Some(tile) => tile.free = false,
             None => (),
         }
+    }
+
+    /// Get a list of all the neighbouring tiles.
+    pub fn neighbours(&self, coords: Coordinates) -> Vec<Coordinates> {
+        let mut neighbours: Vec<Coordinates> = vec![];
+
+        for direction in [
+            Direction::TopRight,
+            Direction::Right,
+            Direction::BottomRight,
+            Direction::BottomLeft,
+            Direction::Left,
+            Direction::TopLeft,
+        ] {
+            let target = coords + direction;
+
+            if self.get(target).is_some() {
+                neighbours.push(target)
+            }
+        }
+
+        neighbours
+    }
+
+    /// Implementation of A* algo. The heuristic function is just Manhattan distance.
+    fn astar_search(
+        &self,
+        from: Coordinates,
+        to: Coordinates,
+    ) -> (HashMap<Coordinates, Coordinates>, HashMap<Coordinates, i32>) {
+        let mut frontier = PriorityQueue::new();
+        frontier.push(from, 0);
+
+        let mut came_from: HashMap<Coordinates, Coordinates> = HashMap::new();
+        let mut cost_so_far: HashMap<Coordinates, i32> = HashMap::new();
+
+        cost_so_far.insert(from, 0);
+
+        while !frontier.is_empty() {
+            let current = frontier.pop().expect("frontier should not be empty");
+
+            if current.0 == to {
+                break;
+            }
+
+            for next in self.neighbours(current.0).iter() {
+                if !self.get(*next).expect("neighbour should exist").free {
+                    continue;
+                }
+
+                let new_cost = cost_so_far
+                    .get(&current.0)
+                    .expect("cost should have been in previous iteration")
+                    + 1;
+                if cost_so_far.get(next).is_none() || &new_cost < cost_so_far.get(next).unwrap() {
+                    cost_so_far.insert(*next, new_cost);
+                    frontier.push(*next, next.distance(to));
+                    came_from.insert(*next, current.0);
+                }
+            }
+        }
+
+        (came_from, cost_so_far)
+    }
+
+    /// Path will call the astar_search function to compute shortest path between from and to.
+    ///
+    /// If no path was found, returns None.
+    pub fn path(&self, from: Coordinates, to: Coordinates) -> Option<Vec<Coordinates>> {
+        let (came_from, cost_so_far) = self.astar_search(from, to);
+
+        let mut current = to;
+        let mut path: Vec<Coordinates> = vec![];
+
+        if came_from.get(&to).is_none() {
+            return None;
+        }
+
+        while current != from {
+            path.push(current);
+            current = *came_from
+                .get(&current)
+                .expect("came_from should always contain a value for current");
+        }
+
+        path.reverse();
+        Some(path)
     }
 }

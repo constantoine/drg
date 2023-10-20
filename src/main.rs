@@ -49,6 +49,7 @@ fn main() {
 
     // Debug options.
     let mut display_pos: bool = false;
+    let mut display_path: bool = false;
     let mut line_up: bool = false;
 
     // Event loop.
@@ -76,7 +77,25 @@ fn main() {
                 Event::KeyDown {
                     keycode: Some(Keycode::D),
                     ..
-                } => display_pos = true,
+                } => {
+                    display_pos = true;
+                    display_path = false;
+                }
+                Event::KeyUp {
+                    keycode: Some(Keycode::D),
+                    ..
+                } => display_pos = false,
+                Event::KeyDown {
+                    keycode: Some(Keycode::P),
+                    ..
+                } => {
+                    display_path = true;
+                    display_pos = false;
+                }
+                Event::KeyUp {
+                    keycode: Some(Keycode::P),
+                    ..
+                } => display_pos = false,
                 Event::KeyDown {
                     keycode: Some(Keycode::Up),
                     ..
@@ -85,10 +104,6 @@ fn main() {
                     keycode: Some(Keycode::Up),
                     ..
                 } => line_up = false,
-                Event::KeyUp {
-                    keycode: Some(Keycode::D),
-                    ..
-                } => display_pos = false,
                 Event::KeyDown {
                     keycode: Some(Keycode::Space),
                     ..
@@ -119,7 +134,9 @@ fn main() {
             Some(x) => {
                 let line = location.line(mouse_pos.into());
                 let chosen_line: Vec<Coordinates>;
-                if line_up {
+                if display_path {
+                    chosen_line = board.path(location, mouse_pos.into()).unwrap_or(vec![]);
+                } else if line_up {
                     chosen_line = line.0;
                 } else {
                     chosen_line = line.1;
@@ -134,7 +151,7 @@ fn main() {
                         a: 70,
                     },
                 );
-                if display_pos {
+                if display_pos || display_path {
                     utils::render_text(
                         &mut canvas,
                         &font,

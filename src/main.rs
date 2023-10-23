@@ -33,9 +33,9 @@ fn main() {
     let mut canvas: sdl2::render::Canvas<sdl2::video::Window> =
         window.into_canvas().build().unwrap();
     let manager = sdl2::ttf::init().unwrap();
-    let font = manager
-        .load_font("/usr/share/fonts/truetype/unifont/unifont.ttf", 22)
-        .expect("Could not load unifont at /usr/share/fonts/truetype/unifont/unifont.ttf");
+
+    let font = utils::load_fonts(&manager, "Unifont").expect("could not load font");
+
     canvas.present();
     let texture_creator = canvas.texture_creator();
     let mut event_pump = sdl_context

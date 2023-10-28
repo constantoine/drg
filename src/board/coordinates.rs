@@ -1,5 +1,7 @@
 use super::{HEIGHT, HEX_SIZE, WIDTH};
 use crate::Direction;
+use std::ops::{Add, Sub};
+
 use sdl2::rect::Point;
 
 /// Tweak value between 1.732 and 2 to add or remove gap.
@@ -27,7 +29,7 @@ const M21: f64 = 0.86602540378;
 /// SIN(0)
 const M22: f64 = 0.0;
 
-impl std::convert::Into<Point> for Coordinates {
+impl Into<Point> for Coordinates {
     /// Calculate the center point in pixel.
     fn into(self) -> Point {
         let r = self.r as f64;
@@ -46,7 +48,7 @@ const N12: f64 = (1.0 / DET_M) * -M12;
 const N21: f64 = (1.0 / DET_M) * -M21;
 const N22: f64 = (1.0 / DET_M) * M11;
 
-impl std::convert::From<Point> for Coordinates {
+impl From<Point> for Coordinates {
     /// Compute [Coordinates] from pixel position.
     fn from(point: Point) -> Self {
         let x = f64::from(point.x) - f64::from(WIDTH) / 4.0;
@@ -65,7 +67,7 @@ impl std::fmt::Display for Coordinates {
     }
 }
 
-impl std::ops::Add<Direction> for Coordinates {
+impl Add<Direction> for Coordinates {
     type Output = Coordinates;
     /// Compute coordinate if the next step is in given direction.
     fn add(self, rhs: Direction) -> Self::Output {
@@ -98,7 +100,7 @@ impl std::ops::Add<Direction> for Coordinates {
     }
 }
 
-impl std::ops::Add<Coordinates> for Coordinates {
+impl Add<Coordinates> for Coordinates {
     type Output = Coordinates;
 
     fn add(self, rhs: Coordinates) -> Self::Output {
@@ -109,7 +111,7 @@ impl std::ops::Add<Coordinates> for Coordinates {
     }
 }
 
-impl std::ops::Sub<Coordinates> for Coordinates {
+impl Sub<Coordinates> for Coordinates {
     type Output = Coordinates;
 
     fn sub(self, rhs: Coordinates) -> Self::Output {
@@ -132,7 +134,7 @@ pub struct FloatCoordinates {
 /// Very small coordinate used to nudge a line in a direction or another.
 const COORDINATES_EPSILON: FloatCoordinates = FloatCoordinates { q: 1e-6, r: 2e-6 };
 
-impl std::ops::Add<FloatCoordinates> for FloatCoordinates {
+impl Add<FloatCoordinates> for FloatCoordinates {
     type Output = FloatCoordinates;
 
     fn add(self, rhs: FloatCoordinates) -> Self::Output {
@@ -143,7 +145,7 @@ impl std::ops::Add<FloatCoordinates> for FloatCoordinates {
     }
 }
 
-impl std::ops::Sub<FloatCoordinates> for FloatCoordinates {
+impl Sub<FloatCoordinates> for FloatCoordinates {
     type Output = FloatCoordinates;
 
     fn sub(self, rhs: FloatCoordinates) -> Self::Output {

@@ -7,9 +7,9 @@ pub mod direction;
 /// [Tile][crate::board::tile::Tile] drawing functions.
 pub mod tile;
 
-/// Size of a time in pixel.
+/// Size of a tile in pixel.
 const HEX_SIZE: f64 = 30.0;
 /// Window width.
-const WIDTH: u32 = 1920;
+const WIDTH: u32 = 1280;
 /// Window heigth.
-const HEIGHT: u32 = 1080;
+const HEIGHT: u32 = 600;

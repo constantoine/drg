@@ -144,7 +144,7 @@ impl Board {
     ///
     /// If no path was found, returns None.
     pub fn path(&self, from: Coordinates, to: Coordinates) -> Option<Vec<Coordinates>> {
-        let (came_from, cost_so_far) = self.astar_search(from, to);
+        let (came_from, _cost_so_far) = self.astar_search(from, to);
 
         let mut current = to;
         let mut path: Vec<Coordinates> = vec![];

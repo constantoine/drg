@@ -135,7 +135,7 @@ fn main() {
 
         // Draw tile on mouse;
         match board.get(mouse_pos.into()) {
-            Some(x) => {
+            Some(_tile) => {
                 let line = location.line(mouse_pos.into());
                 let chosen_line: Vec<Coordinates>;
                 if display_path {

@@ -1,5 +1,56 @@
+use std::path::PathBuf;
 use fontdb::Source;
 use sdl2::pixels::Color;
+
+use sdl2::render::{Texture, TextureCreator, WindowCanvas};
+use sdl2::image::LoadTexture;
+use sdl2::rect::{Point, Rect};
+use sdl2::video::WindowContext;
+
+pub struct TextureAtlas<'a> {
+    pub texture: Texture<'a>
+}
+
+impl <'a> TextureAtlas<'a> {
+    pub fn new_from_path(
+        creator: &'a TextureCreator<WindowContext>,
+        filename: PathBuf
+    ) -> Result<TextureAtlas<'a>, String> {
+        match creator.load_texture(filename) {
+            Ok(t) => Ok(TextureAtlas {
+                texture: t
+            }),
+            Err(e) => Err(e)
+        }
+    }
+
+    pub fn render(&self,
+                  canvas: &mut WindowCanvas,
+                  pos: Point,
+    ) -> Result<(), String> {
+        let query = self.texture.query();
+
+       let sprite_rect = Rect::new(
+           0,
+           0,
+           query.width,
+           query.height
+       );
+
+       let dest_rest = Rect::new(
+           pos.x(),
+           pos.y(),
+           query.width,
+           query.height,
+       );
+
+        canvas.copy(
+            &self.texture,
+            sprite_rect,
+            dest_rest,
+        )
+    }
+}
 
 /// Helper function to load a font with the SDL2 manager using the OS's font catalogue.
 pub fn load_fonts<'ttf>(

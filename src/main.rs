@@ -8,6 +8,7 @@ mod dice;
 /// UTF-8 + SDL2 shenanigans.
 mod utils;
 
+use std::path::PathBuf;
 use board::board::Board;
 use board::coordinates::Coordinates;
 use board::direction::Direction;
@@ -18,6 +19,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use std::time::Duration;
+use sdl2::rect::Point;
 
 fn main() {
     // SDL init.
@@ -33,7 +35,9 @@ fn main() {
     let mut canvas: sdl2::render::Canvas<sdl2::video::Window> =
         window.into_canvas().build().unwrap();
     let manager = sdl2::ttf::init().unwrap();
-
+    let _loader = sdl2::image::init(sdl2::image::InitFlag::PNG).expect("could not init SDL2_image");
+    let texture_creator = canvas.texture_creator();
+    let texture = utils::TextureAtlas::new_from_path(&texture_creator, PathBuf::from("/Users/crebert/dev/drg/test_asset.png")).expect("could not load texture");
     let font = utils::load_fonts(&manager, "Unifont").expect("could not load font");
 
     canvas.present();
@@ -141,6 +145,13 @@ fn main() {
                 } else {
                     chosen_line = line.1;
                 }
+                let coords: Coordinates = mouse_pos.into();
+                let pos: Point = coords.into();
+                texture.render(
+                    &mut canvas,
+                    pos.offset(-30, -30),
+                ).expect("could not render texture");
+                /*
                 x.add_color(
                     &mut canvas,
                     mouse_pos.into(),
@@ -151,6 +162,7 @@ fn main() {
                         a: 70,
                     },
                 );
+                */
                 if display_pos || display_path {
                     utils::render_text(
                         &mut canvas,

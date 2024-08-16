@@ -3,7 +3,7 @@
 pub enum Kind {
     Fire,
     Explosive,
-    Ennemy,
+    Enemy,
     Piercing,
     Bullet,
     Melee,

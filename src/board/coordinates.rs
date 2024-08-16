@@ -191,10 +191,10 @@ impl Coordinates {
                 r: rgrid as i32,
             };
         }
-        return Coordinates {
+        Coordinates {
             q: qgrid as i32,
             r: (rgrid + (rremainder + 0.5 * qremainder).round()) as i32,
-        };
+        }
     }
 
     /// Manhattan distance between two hexes.
@@ -241,5 +241,35 @@ impl Coordinates {
         }
 
         (first, second)
+    }
+
+    /// Returns one line between two hexes.
+    /// Coordinates don't have to exist on the board.
+    pub fn strict_line(self, target: Coordinates) -> Vec<Coordinates> {
+        let mut distance = self.distance(target);
+        if distance == 0 {
+            distance = 1;
+        }
+
+        let start_float = FloatCoordinates {
+            q: self.q as f64,
+            r: self.r as f64,
+        };
+        let end_float = FloatCoordinates {
+            q: target.q as f64,
+            r: target.r as f64,
+        };
+
+        let mut line: Vec<Coordinates> = Vec::with_capacity(distance as usize);
+
+        for i in 1..(distance) {
+            line.push(Coordinates::round(axial_lerp(
+                start_float,
+                end_float,
+                1.0 / distance as f64 * i as f64,
+            )));
+        }
+
+        line
     }
 }

@@ -12,7 +12,7 @@ use super::{coordinates::Coordinates, tile::Tile};
 /// A game board containing a reference to each of its [Tiles][Tile].
 #[derive(Debug)]
 pub struct Board {
-    tiles: HashMap<Coordinates, Tile>,
+    pub tiles: HashMap<Coordinates, Tile>,
 }
 
 impl Board {
@@ -32,7 +32,7 @@ impl Board {
                 }
 
                 // Generated tiles have 8% chance of being obstacles.
-                let mut free = rng.gen_bool(0.92);
+                let mut free = rng.gen_bool(0.6);
                 if x == 0 && y == 0 {
                     free = false;
                 }
@@ -40,7 +40,7 @@ impl Board {
                 tiles.insert(Coordinates::from_offset(x, y), Tile::new(free));
             }
         }
-        Board { tiles: tiles }
+        Board { tiles }
     }
 
     /// Iterate over every tile and draw its base.
@@ -140,7 +140,22 @@ impl Board {
         (came_from, cost_so_far)
     }
 
-    /// Path will call the astar_search function to compute shortest path between from and to.
+    /// Apply a check closure on every tile designated by the set of coordinates.
+    /// Will return true if every tile passed the check, of return false at the first faulty tile.
+    pub fn run_checks<F>(&self, coords: &[Coordinates], check: F) -> bool
+    where
+        F: Fn(Option<&Tile>) -> bool,
+    {
+        for (coord) in coords.iter() {
+            if !check(self.get(*coord)) {
+                return false;
+            };
+        }
+
+        true
+    }
+
+    /// Path will call the astar_search function to compute the shortest path between from and to.
     ///
     /// If no path was found, returns None.
     pub fn path(&self, from: Coordinates, to: Coordinates) -> Option<Vec<Coordinates>> {

@@ -1,4 +1,4 @@
-/// [Dice] constants.
+/// [Die] constants.
 pub mod dices;
 
 use crate::damage::kind::Kind;
@@ -18,11 +18,11 @@ pub enum DiceResult {
     Noop,
 }
 
-/// Dice implementation is faces-number agnostic.
-/// distribuable property denotes if one dice's result can be split.
+/// Die implementation is faces-number agnostic.
+/// distributable property denotes if one die's result can be split.
 /// eg, Melee dice.
 #[derive(Clone, Copy, Debug)]
-pub struct Dice {
+pub struct Die {
     /// Number of faces whose result is 1 hit.
     single: u8,
     /// Number of faces whose result is 2 hits.
@@ -31,13 +31,13 @@ pub struct Dice {
     special: u8,
     /// Number of faces whose result is 0 hits (missed).
     noop: u8,
-    /// If damaged can be split between ennemies.
-    distribuable: bool,
+    /// If damaged can be split between enemies.
+    distributable: bool,
     /// The kind of damage dealt, if relevant.
     damage: Option<Kind>,
 }
 
-impl Dice {
+impl Die {
     /// Super complex and expensive calculation to map a number to a face.
     /// On a given dice, the same input produces the same output.
     fn result(self, value: u8) -> DiceResult {
@@ -59,7 +59,7 @@ impl Dice {
         }
     }
 
-    /// Throw a dice using rng as a source of randommness.
+    /// Throw a die using rng as a source of randomness.
     pub fn throw(self, rng: &mut SmallRng) -> DiceResult {
         self.result(rng.gen_range(1..=(self.single + self.double + self.noop + self.special)))
     }
@@ -72,7 +72,7 @@ mod tests {
 
     #[test]
     fn fire_dice() {
-        let dice: Dice = FIRE_DICE;
+        let dice: Die = FIRE_DICE;
 
         let results: Vec<DiceResult> = (1..=6).map(|i| dice.result(i)).collect();
 
@@ -107,8 +107,8 @@ mod tests {
     }
 
     #[test]
-    fn ennemy_dice() {
-        let dice: Dice = ENNEMY_DICE;
+    fn enemy_dice() {
+        let dice: Die = ENEMY_DICE;
 
         let results: Vec<DiceResult> = (1..=6).map(|i| dice.result(i)).collect();
 
@@ -144,7 +144,7 @@ mod tests {
 
     #[test]
     fn explosive_dice() {
-        let dice: Dice = EXPLOSIVE_DICE;
+        let dice: Die = EXPLOSIVE_DICE;
 
         let results: Vec<DiceResult> = (1..=6).map(|i| dice.result(i)).collect();
 
@@ -180,7 +180,7 @@ mod tests {
 
     #[test]
     fn pickaxe_dice() {
-        let dice: Dice = PICKAXE_DICE;
+        let dice: Die = PICKAXE_DICE;
 
         let results: Vec<DiceResult> = (1..=6).map(|i| dice.result(i)).collect();
 
@@ -216,7 +216,7 @@ mod tests {
 
     #[test]
     fn mineral_dice() {
-        let dice: Dice = MINERAL_DICE;
+        let dice: Die = MINERAL_DICE;
 
         let results: Vec<DiceResult> = (1..=6).map(|i| dice.result(i)).collect();
 
@@ -252,7 +252,7 @@ mod tests {
 
     #[test]
     fn bullet_dice() {
-        let dice: Dice = BULLET_DICE;
+        let dice: Die = BULLET_DICE;
 
         let results: Vec<DiceResult> = (1..=6).map(|i| dice.result(i)).collect();
 
@@ -288,7 +288,7 @@ mod tests {
 
     #[test]
     fn piercing_dice() {
-        let dice: Dice = PIERCING_DICE;
+        let dice: Die = PIERCING_DICE;
 
         let results: Vec<DiceResult> = (1..=6).map(|i| dice.result(i)).collect();
 

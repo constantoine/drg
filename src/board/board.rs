@@ -32,7 +32,7 @@ impl Board {
                 }
 
                 // Generated tiles have 8% chance of being obstacles.
-                let mut free = rng.gen_bool(0.6);
+                let mut free = rng.gen_bool(0.92);
                 if x == 0 && y == 0 {
                     free = false;
                 }
@@ -146,7 +146,7 @@ impl Board {
     where
         F: Fn(Option<&Tile>) -> bool,
     {
-        for (coord) in coords.iter() {
+        for coord in coords.iter() {
             if !check(self.get(*coord)) {
                 return false;
             };

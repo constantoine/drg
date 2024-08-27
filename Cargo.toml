@@ -9,7 +9,18 @@ categories = ["games"]
 keywords = ["game"]
 
 [dependencies]
-rand = {version = "0.8.5", features = ["small_rng", "getrandom"], default-features = false }
-sdl2 = {version = "0.35.2", features = ["gfx", "ttf", "image"], default-features = false}
-fontdb = {version = "0.15.0", features = ["fs"]}
-priority-queue = "1.3.2"
+priority-queue = "2.1.0"
+
+[dependencies.rand]
+version = "0.8.5"
+features = ["small_rng", "getrandom"]
+default-features = false
+
+[dependencies.fontdb]
+version = "0.21.0"
+features = ["fs"]
+
+[dependencies.sdl2]
+version = "0.37.0"
+features = ["gfx", "ttf", "image"]
+default-features = false

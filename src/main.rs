@@ -19,7 +19,6 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
-use sdl2::sys::gfx::primitives::lineColor;
 use std::time::Duration;
 
 fn main() {

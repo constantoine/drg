@@ -2,6 +2,8 @@ use super::{HEIGHT, HEX_SIZE, WIDTH};
 use crate::Direction;
 use std::ops::{Add, Sub};
 
+use crate::board::board::Board;
+use crate::board::tile::Tile;
 use sdl2::rect::Point;
 
 /// Tweak value between 1.732 and 2 to add or remove gap.
@@ -134,6 +136,64 @@ pub struct FloatCoordinates {
 /// Very small coordinate used to nudge a line in a direction or another.
 const COORDINATES_EPSILON: FloatCoordinates = FloatCoordinates { q: 1e-6, r: 2e-6 };
 
+impl std::fmt::Display for FloatCoordinates {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("q: {:.2}, r: {:.2}", self.q, self.r))
+    }
+}
+
+impl From<Point> for FloatCoordinates {
+    /// Compute [Coordinates] from pixel position.
+    fn from(point: Point) -> Self {
+        let x = f64::from(point.x) - f64::from(WIDTH) / 4.0;
+        let y = f64::from(point.y) - f64::from(HEIGHT) / 5.0;
+        FloatCoordinates {
+            q: (1.0 / HEX_DIAMETER) * (N21 * x + N22 * y),
+            r: (1.0 / HEX_DIAMETER) * (N11 * x + N12 * y),
+        }
+    }
+}
+
+impl FloatCoordinates {
+    /// Manhattan distance between two hexes.
+    /// Coordinates don't have to exist on the board.
+    pub fn distance(self, target: FloatCoordinates) -> f64 {
+        let vec: FloatCoordinates = self - target;
+        let manhattan = vec.q.abs() + (vec.q.abs() + vec.r.abs()) + vec.r.abs();
+        manhattan / 2.0
+    }
+
+    pub fn get_corner(self, corner: i8) -> FloatCoordinates {
+        match corner {
+            0 => Self {
+                q: self.q + 0.3,
+                r: self.r - 0.5,
+            },
+            1 => Self {
+                q: self.q + 0.3,
+                r: self.r - 0.25,
+            },
+            2 => Self {
+                q: self.q + 0.3,
+                r: self.r + 0.3,
+            },
+            3 => Self {
+                q: self.q - 0.25,
+                r: self.r + 0.6,
+            },
+            4 => Self {
+                q: self.q - 0.6,
+                r: self.r + 0.3,
+            },
+            5 => Self {
+                q: self.q - 0.3,
+                r: self.r - 0.25,
+            },
+            _ => unreachable!(),
+        }
+    }
+}
+
 impl Add<FloatCoordinates> for FloatCoordinates {
     type Output = FloatCoordinates;
 
@@ -174,7 +234,7 @@ impl Coordinates {
     pub fn from_offset(x: i32, y: i32) -> Self {
         let r = y;
         let q = x - (y - (y & 1)) / 2;
-        Coordinates { q: q, r: r }
+        Coordinates { q, r }
     }
 
     /// More precise coordinate round.
@@ -205,8 +265,8 @@ impl Coordinates {
         (manhattan / 2) as u32
     }
 
-    /// Returns one or two lines (one with +epsilon, one with -epsilon) between two hexes.
-    /// Coordinates don't have to exist on the board.
+    /// Returns a line. Will try to draw one using +epsilon, and one using -epsilon.
+    /// Which is returned will be determined by
     pub fn line(self, target: Coordinates) -> (Vec<Coordinates>, Vec<Coordinates>) {
         let mut distance = self.distance(target);
         if distance == 0 {
@@ -243,14 +303,11 @@ impl Coordinates {
         (first, second)
     }
 
-    /// Returns one line between two hexes.
-    /// Coordinates don't have to exist on the board.
-    pub fn strict_line(self, target: Coordinates) -> Vec<Coordinates> {
-        let mut distance = self.distance(target);
-        if distance == 0 {
-            distance = 1;
-        }
-
+    /// Check if line of sight can be achieved using argument `check` as constraint.
+    pub fn strict_line<F>(self, board: &Board, target: Coordinates, check: F) -> bool
+    where
+        F: Fn(Option<&Tile>) -> bool,
+    {
         let start_float = FloatCoordinates {
             q: self.q as f64,
             r: self.r as f64,
@@ -260,16 +317,33 @@ impl Coordinates {
             r: target.r as f64,
         };
 
-        let mut line: Vec<Coordinates> = Vec::with_capacity(distance as usize);
+        for start_angle in 0..6 {
+            let start_float = start_float.get_corner(start_angle);
+            'point: for end_angle in 0..6 {
+                let end_float = end_float.get_corner(end_angle);
 
-        for i in 1..(distance) {
-            line.push(Coordinates::round(axial_lerp(
-                start_float,
-                end_float,
-                1.0 / distance as f64 * i as f64,
-            )));
+                let mut distance = self.distance(target);
+                if distance == 0 {
+                    distance = 1;
+                }
+
+                let actual_distance = start_float.distance(end_float);
+
+                for i in 1..((actual_distance * 8.0).floor() as i32) {
+                    let tile_minus = board.get(Coordinates::round(axial_lerp(
+                        start_float,
+                        end_float,
+                        1.0 / actual_distance * (i as f64 / 8.0),
+                    )));
+                    if !check(tile_minus) {
+                        continue 'point;
+                    }
+                }
+
+                return true;
+            }
         }
 
-        line
+        false
     }
 }

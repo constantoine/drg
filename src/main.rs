@@ -15,6 +15,7 @@ use std::path::PathBuf;
 
 extern crate sdl2;
 
+use crate::board::coordinates::FloatCoordinates;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
@@ -39,7 +40,7 @@ fn main() {
     let texture_creator = canvas.texture_creator();
     let texture = utils::TextureAtlas::new_from_path(
         &texture_creator,
-        PathBuf::from("/Users/crebert/dev/drg/test_asset.png"),
+        PathBuf::from("/home/cleo/Documents/dev/rust/drg/test_asset.png"),
     )
     .expect("could not load texture");
     let font = utils::load_fonts(&manager, "Unifont").expect("could not load font");
@@ -174,9 +175,11 @@ fn main() {
             }
             let coords: Coordinates = mouse_pos.into();
             let pos: Point = coords.into();
+            /*
             texture
                 .render(&mut canvas, pos.offset(-30, -30))
                 .expect("could not render texture");
+             */
             /*
             x.add_color(
                 &mut canvas,
@@ -189,51 +192,6 @@ fn main() {
                 },
             );
             */
-            // TODO: Current logic has a big issue: LoS is based on centre-to-centre of tile, when it should be from any vertex to any vertex
-            // or even better from any point on edge to any point on edge, but not sure if it would bring new visible tiles.
-            if display_los {
-                let tiles = board.tiles.iter().map(|(coord, tile)| {
-                    if !tile.free {
-                        return (coord, false);
-                    }
-                    let lines = location.line(*coord);
-                    let res1 = board.run_checks(&lines.0, |option| {
-                        if option.is_none() {
-                            return false;
-                        }
-                        let t = option.unwrap();
-                        return t.free;
-                    });
-                    let res2 = board.run_checks(&lines.1, |option| {
-                        if option.is_none() {
-                            return false;
-                        }
-                        let t = option.unwrap();
-                        return t.free;
-                    });
-                    if res1 || res2 {
-                        return (coord, true);
-                    }
-                    (coord, false)
-                });
-                tiles.for_each(|(coords, visible)| {
-                    let tile = board.get(*coords);
-                    if tile.is_none() {
-                        return;
-                    }
-                    let tile = tile.unwrap();
-                    if !tile.free {
-                        return;
-                    }
-                    let color: Color;
-                    if visible {
-                        color = Color::RGB(125, 255, 125);
-                    } else {
-                        color = Color::RGB(255, 125, 125);
-                    }
-                    tile.add_color(&mut canvas, *coords, color)
-                })
-            }
             if display_pos || display_path {
                 utils::render_text(
                     &mut canvas,
@@ -257,12 +215,95 @@ fn main() {
             }
         }
 
+        if display_los {
+            let tiles = board.tiles.iter().map(|(coord, tile)| {
+                if !tile.free {
+                    return (coord, false);
+                }
+
+                let res = location.strict_line(&board, *coord, |option| {
+                    if option.is_none() {
+                        return false;
+                    }
+                    option.unwrap().free
+                });
+
+                if res {
+                    return (coord, true);
+                }
+                (coord, false)
+            });
+            tiles.for_each(|(coords, visible)| {
+                let tile = board.get(*coords);
+                if tile.is_none() {
+                    return;
+                }
+                let tile = tile.unwrap();
+                if !tile.free {
+                    return;
+                }
+                let color: Color;
+                if visible {
+                    color = Color::RGB(125, 255, 125);
+                } else {
+                    color = Color::RGB(255, 125, 125);
+                }
+                tile.add_color(&mut canvas, *coords, color)
+            })
+        }
         // Draw current position and direction.
         let arrow = direction.to_string();
-        let mut text_center: sdl2::rect::Point = location.into();
+        let mut text_center: Point = location.into();
         text_center.x -= 3;
         text_center.y -= 10;
         utils::render_text(&mut canvas, &font, &texture_creator, text_center, &arrow);
+        if display_los {
+            utils::render_text(
+                &mut canvas,
+                &font,
+                &texture_creator,
+                Point::new(1200, 475),
+                "mode (F): display line of sight (simple)",
+            );
+        } else if display_path {
+            utils::render_text(
+                &mut canvas,
+                &font,
+                &texture_creator,
+                Point::new(1200, 475),
+                "mode (P): path",
+            );
+        } else if display_pos {
+            utils::render_text(
+                &mut canvas,
+                &font,
+                &texture_creator,
+                Point::new(1200, 475),
+                "mode (D): path",
+            );
+        } else {
+            utils::render_text(
+                &mut canvas,
+                &font,
+                &texture_creator,
+                Point::new(1200, 475),
+                "mode: default",
+            );
+        }
+        utils::render_text(
+            &mut canvas,
+            &font,
+            &texture_creator,
+            Point::new(1200, 500),
+            FloatCoordinates::from(mouse_pos).to_string().as_str(),
+        );
+        utils::render_text(
+            &mut canvas,
+            &font,
+            &texture_creator,
+            Point::new(1200, 525),
+            Coordinates::from(mouse_pos).to_string().as_str(),
+        );
 
         canvas.present();
         std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));

@@ -329,11 +329,11 @@ impl Coordinates {
 
                 let actual_distance = start_float.distance(end_float);
 
-                for i in 1..((actual_distance * 8.0).floor() as i32) {
+                for i in 1..((actual_distance * 16.0).floor() as i32) {
                     let tile_minus = board.get(Coordinates::round(axial_lerp(
                         start_float,
                         end_float,
-                        1.0 / actual_distance * (i as f64 / 8.0),
+                        1.0 / actual_distance * (i as f64 / 16.0),
                     )));
                     if !check(tile_minus) {
                         continue 'point;

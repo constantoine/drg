@@ -148,8 +148,6 @@ fn main() {
                             if !x.free {
                                 break;
                             }
-                            board.fill(try_loc);
-                            board.free(previous_loc);
                             location = try_loc;
                         }
                         None => (),
@@ -279,7 +277,7 @@ fn main() {
                 &font,
                 &texture_creator,
                 Point::new(1200, 475),
-                "mode (D): path",
+                "mode (D): line",
             );
         } else {
             utils::render_text(
@@ -303,6 +301,13 @@ fn main() {
             &texture_creator,
             Point::new(1200, 525),
             Coordinates::from(mouse_pos).to_string().as_str(),
+        );
+        utils::render_text(
+            &mut canvas,
+            &font,
+            &texture_creator,
+            Point::new(1200, 550),
+            &format!("Player position: {}", location),
         );
 
         canvas.present();

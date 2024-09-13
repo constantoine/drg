@@ -1,4 +1,4 @@
-use sdl2::gfx::primitives::DrawRenderer;
+use sdl2::gfx::primitives::{DrawRenderer, ToColor};
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::render::{Canvas, RenderTarget};
@@ -107,5 +107,29 @@ impl Tile {
                 )
                 .unwrap();
         }
+    }
+
+    /// Apply a mask on a color
+    pub fn mask<T, C>(&self, canvas: &mut Canvas<T>, coordinates: Coordinates, color: C)
+    where
+        T: RenderTarget,
+        C: ToColor,
+    {
+        let orig: Point = coordinates.into();
+        let mut points: [Point; 6] = [Point::new(0, 0); 6];
+        for i in 0..6 {
+            let angle_deg: f64 = (60 * (i as i32) - 30) as f64;
+            let angle_rad: f64 = f64::to_radians(angle_deg);
+            points[i].x = orig.x + (f64::round(HEX_SIZE * f64::cos(angle_rad)) as i32);
+            points[i].y = orig.y + (f64::round(HEX_SIZE * f64::sin(angle_rad)) as i32);
+        }
+
+        canvas
+            .filled_polygon(
+                &points.map(|p| p.x as i16),
+                &points.map(|p| p.y as i16),
+                color,
+            )
+            .unwrap();
     }
 }

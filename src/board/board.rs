@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
+use super::{coordinates::Coordinates, tile::Tile};
 use crate::board::direction::Direction;
+use crate::board::shape::Shape;
 use priority_queue::PriorityQueue;
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
+use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::render::RenderTarget;
-
-use super::{coordinates::Coordinates, tile::Tile};
 
 /// A game board containing a reference to each of its [Tiles][Tile].
 #[derive(Debug)]
@@ -177,5 +178,23 @@ impl Board {
 
         path.reverse();
         Some(path)
+    }
+
+    pub fn ghost_shape<T>(&self, shape: Shape, canvas: &mut Canvas<T>)
+    where
+        T: RenderTarget,
+    {
+        const RED: Color = Color::RGBA(255, 0, 0, 50);
+        const GREEN: Color = Color::RGBA(0, 255, 0, 40);
+
+        for coord in shape.tiles {
+            if let Some(tile) = self.get(coord + shape.center) {
+                if tile.free {
+                    tile.mask(canvas, coord + shape.center, GREEN);
+                } else {
+                    tile.mask(canvas, coord + shape.center, RED);
+                }
+            }
+        }
     }
 }

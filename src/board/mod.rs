@@ -7,6 +7,9 @@ pub mod direction;
 /// [Tile][crate::board::tile::Tile] drawing functions.
 pub mod tile;
 
+/// [Tile][crate::board::tile::Tile] drawing functions.
+pub mod shape;
+
 /// Size of a tile in pixel.
 const HEX_SIZE: f64 = 30.0;
 /// Window width.

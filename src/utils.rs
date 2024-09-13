@@ -22,6 +22,16 @@ impl<'a> TextureAtlas<'a> {
         }
     }
 
+    pub fn from_bytes(
+        creator: &'a TextureCreator<WindowContext>,
+        bytes: &[u8],
+    ) -> Result<TextureAtlas<'a>, String> {
+        match creator.load_texture_bytes(bytes) {
+            Ok(t) => Ok(TextureAtlas { texture: t }),
+            Err(e) => Err(e),
+        }
+    }
+
     pub fn render(&self, canvas: &mut WindowCanvas, pos: Point) -> Result<(), String> {
         let query = self.texture.query();
 

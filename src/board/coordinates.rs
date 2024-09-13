@@ -230,6 +230,18 @@ fn axial_lerp(a: FloatCoordinates, b: FloatCoordinates, t: f64) -> FloatCoordina
 }
 
 impl Coordinates {
+    /// Checks if the rsh Coordinate is in the code with origin self and given orientation.
+    pub fn in_cone(self: Self, rhs: Self, orientation: Direction) -> bool {
+        match orientation {
+            Direction::TopRight => self.r >= rhs.r && self.q <= rhs.q,
+            Direction::BottomLeft => self.r <= rhs.r && self.q >= rhs.q,
+            Direction::Right => self.q <= rhs.q && self.q + self.r <= rhs.q + rhs.r,
+            Direction::Left => self.q >= rhs.q && self.q + self.r >= rhs.q + rhs.r,
+            Direction::BottomRight => self.r <= rhs.r && self.q + self.r <= rhs.q + rhs.r,
+            Direction::TopLeft => self.r >= rhs.r && self.q + self.r >= rhs.q + rhs.r,
+        }
+    }
+
     /// Transforms x/y coordinates into cube coordinates.
     pub fn from_offset(x: i32, y: i32) -> Self {
         let r = y;
@@ -321,11 +333,6 @@ impl Coordinates {
             let start_float = start_float.get_corner(start_angle);
             'point: for end_angle in 0..6 {
                 let end_float = end_float.get_corner(end_angle);
-
-                let mut distance = self.distance(target);
-                if distance == 0 {
-                    distance = 1;
-                }
 
                 let actual_distance = start_float.distance(end_float);
 

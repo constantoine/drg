@@ -11,11 +11,13 @@ mod utils;
 use board::board::Board;
 use board::coordinates::Coordinates;
 use board::direction::Direction;
+use std::ops::Add;
 use std::path::PathBuf;
 
 extern crate sdl2;
 
 use crate::board::coordinates::FloatCoordinates;
+use crate::board::shape::Shape;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
@@ -62,6 +64,17 @@ fn main() {
     let mut line_up: bool = false;
     let mut display_los: bool = false;
 
+    let mut shape: Shape = Shape {
+        center: Coordinates { q: 0, r: 0 },
+        tiles: vec![
+            Coordinates { q: 1, r: -1 },
+            Coordinates { q: 0, r: 0 },
+            Coordinates { q: 0, r: 1 },
+        ],
+    };
+
+    let mut orientation: Direction = Direction::Right;
+
     // Event loop.
     'running: loop {
         let mouse_state = sdl2::mouse::MouseState::new(&event_pump);
@@ -87,6 +100,15 @@ fn main() {
                         board.fill(coords);
                     } else {
                         board.free(coords);
+                    }
+                }
+                Event::MouseWheel { y, .. } => {
+                    if y > 0 {
+                        shape.rotate_clockwise();
+                        orientation = Direction::from((orientation as i32) + 1);
+                    } else {
+                        shape.rotate_counterclockwise();
+                        orientation = Direction::from((orientation as i32) - 1);
                     }
                 }
                 Event::KeyDown {
@@ -309,6 +331,21 @@ fn main() {
             Point::new(1200, 550),
             &format!("Player position: {}", location),
         );
+
+        shape.center = mouse_pos.into();
+        let cone = if shape.center.in_cone(location, orientation) {
+            "in cone"
+        } else {
+            "not in cone"
+        };
+        utils::render_text(
+            &mut canvas,
+            &font,
+            &texture_creator,
+            Point::new(1200, 575),
+            cone,
+        );
+        board.ghost_shape(shape.clone(), &mut canvas);
 
         canvas.present();
         std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
